@@ -96,3 +96,42 @@ test('Keyboard focus reveals offscreen cards without waiting for scroll animatio
   await expect(page).toHaveURL(/du-an/);
   await expect(page.getByRole('dialog')).toBeVisible();
 });
+
+test('Scroll depth resets on reduced motion and is disabled on compact screens', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1366, height: 900 });
+  await page.goto('/');
+  await expect(page.locator('.public-site')).toHaveAttribute('data-motion-ready', 'true');
+  const media = page.locator('.hero-media');
+  const titleLines = page.locator('.hero-title-line > *');
+
+  for (const line of await titleLines.all()) {
+    await expect(line).toHaveCSS('transform', 'none');
+  }
+
+  await page.evaluate(() => {
+    window.scrollTo({ top: 380, behavior: 'instant' });
+  });
+  await expect
+    .poll(async () => {
+      return media.evaluate((element) => {
+        return new DOMMatrixReadOnly(getComputedStyle(element).transform).m42;
+      });
+    })
+    .toBeGreaterThan(20);
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(media).toHaveCSS('transform', 'none');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await expect(media).toHaveCSS('transform', 'none');
+  await page.locator('.category-card').first().focus();
+  await expectReadable(page.locator('.category-card').first());
+  await expect(page.locator('.category-card').first()).toHaveCSS('scale', 'none');
+  expect(
+    await page.evaluate(() => {
+      return document.documentElement.scrollWidth > innerWidth;
+    }),
+  ).toBe(false);
+});

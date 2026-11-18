@@ -1,6 +1,7 @@
 import { useLayoutEffect } from 'react';
 import AOS from 'aos';
 import { gsap, ScrollTrigger } from './gsap';
+import { animatePageEntrance, animateScrollScenes } from './pageMotion';
 
 let aosInitialized = false;
 
@@ -8,9 +9,9 @@ function initializeScrollReveals() {
   // AOS installs global listeners. Initialize once, including under React StrictMode.
   if (!aosInitialized) {
     AOS.init({
-      duration: 650,
+      duration: 900,
       easing: 'ease-out-cubic',
-      offset: 45,
+      offset: 55,
       delay: 0,
       once: true,
       mirror: false,
@@ -20,56 +21,6 @@ function initializeScrollReveals() {
   }
 
   AOS.refreshHard();
-}
-
-function animatePageEntrance(root) {
-  const timeline = gsap.timeline({
-    defaults: {
-      duration: 0.7,
-      ease: 'power3.out',
-      clearProps: 'opacity,transform',
-    },
-  });
-  const hero = root.querySelector('.hero');
-
-  if (hero) {
-    timeline
-      .from(hero.querySelector('.hero-image'), {
-        scale: 1.07,
-        duration: 1.6,
-        ease: 'power2.out',
-      })
-      .from(
-        hero.querySelectorAll('.hero-copy > *'),
-        {
-          y: 25,
-          opacity: 0,
-          stagger: 0.09,
-        },
-        0.08,
-      )
-      .from(
-        hero.querySelectorAll('.hero-bottom, .hero-side-label'),
-        {
-          opacity: 0,
-          duration: 0.7,
-        },
-        0.6,
-      );
-  } else {
-    const heading = root.querySelector('.page-hero .container');
-
-    if (heading) {
-      timeline.from(heading.children, {
-        y: 18,
-        opacity: 0,
-        stagger: 0.07,
-        duration: 0.6,
-      });
-    }
-  }
-
-  return timeline;
 }
 
 export default function usePublicMotion(rootRef, routeKey, ready) {
@@ -88,9 +39,22 @@ export default function usePublicMotion(rootRef, routeKey, ready) {
     initializeScrollReveals();
     root.dataset.motionReady = 'true';
 
-    media.add('(prefers-reduced-motion: no-preference)', () => {
-      timeline = animatePageEntrance(root);
-    });
+    media.add(
+      {
+        motion: '(prefers-reduced-motion: no-preference)',
+        compact: '(max-width: 959px)',
+      },
+      (context) => {
+        const { motion, compact } = context.conditions;
+
+        if (!motion) {
+          return;
+        }
+
+        timeline = animatePageEntrance(root, compact);
+        animateScrollScenes(root, compact);
+      },
+    );
 
     function refreshPositions() {
       if (!active) {
@@ -126,6 +90,9 @@ export default function usePublicMotion(rootRef, routeKey, ready) {
     // Font and lazy-image loading can change section positions after the initial render.
     root.addEventListener('load', refreshPositions, true);
     root.addEventListener('focusin', revealFocusedContent);
+    // Expanding FAQs and changing product filters also move reveal targets.
+    const resizeObserver = new ResizeObserver(refreshPositions);
+    resizeObserver.observe(root);
     document.fonts.ready.then(refreshPositions);
     refreshPositions();
 
@@ -134,6 +101,7 @@ export default function usePublicMotion(rootRef, routeKey, ready) {
       cancelAnimationFrame(refreshFrame);
       root.removeEventListener('load', refreshPositions, true);
       root.removeEventListener('focusin', revealFocusedContent);
+      resizeObserver.disconnect();
       delete root.dataset.motionReady;
       media.revert();
     };

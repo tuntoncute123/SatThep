@@ -18,6 +18,7 @@ import { SectionHeading } from '../components/Common';
 import SteelArt from '../components/SteelArt';
 import { useSite } from '../lib';
 import AnimatedNumber from '../components/AnimatedNumber';
+import { SupplyProcess, BuyingQuestions } from '../components/SupplyGuide';
 const catalog = [
   ['Thép xây dựng', 'Nền tảng vững chắc cho mọi công trình', '01'],
   ['Thép hình', 'Giải pháp kết cấu chịu lực vượt trội', '02'],
@@ -62,7 +63,7 @@ export function ProjectCard({ project, onClick, index = 0 }) {
       className="project-card"
       onClick={onClick}
       data-aos="reveal"
-      data-aos-delay={(index % 3) * 50}
+      data-aos-delay={(index % 3) * 100}
     >
       <div className="project-image">
         <img src={project.image} alt={project.name} loading="lazy" />
@@ -84,6 +85,7 @@ export function ProjectCard({ project, onClick, index = 0 }) {
 }
 export function CallToAction() {
   const { openQuote } = useQuote();
+  const { settings } = useSite();
   return (
     <section className="cta-section">
       <div className="container cta-inner" data-aos="reveal">
@@ -102,7 +104,7 @@ export function CallToAction() {
             return openQuote();
           }}
         >
-          Kết nối với Thép Việt
+          Kết nối với {settings.name}
           <ArrowUpRight size={20} />
         </button>
         <div className="cta-lines" aria-hidden="true" />
@@ -116,12 +118,14 @@ export default function Home() {
   return (
     <>
       <section className="hero">
-        <img
-          className="hero-image"
-          src="/images/hero-workshop.jpg"
-          alt="Thợ cơ khí gia công kết cấu thép trong nhà xưởng"
-          fetchPriority="high"
-        />
+        <div className="hero-media">
+          <img
+            className="hero-image"
+            src="/images/hero-workshop.jpg"
+            alt="Thợ cơ khí gia công kết cấu thép trong nhà xưởng"
+            fetchPriority="high"
+          />
+        </div>
         <div className="hero-overlay" />
         <div className="container hero-inner">
           <div className="hero-copy">
@@ -129,9 +133,12 @@ export default function Home() {
               <i /> VỮNG CHẤT THÉP, VỮNG NIỀM TIN
             </span>
             <h1>
-              Vững nền móng.
-              <br />
-              <em>Bền tương lai.</em>
+              <span className="hero-title-line">
+                <span>Vững nền móng.</span>
+              </span>
+              <span className="hero-title-line">
+                <em>Bền tương lai.</em>
+              </span>
             </h1>
             <p>
               Giải pháp sắt thép toàn diện cho mọi công trình.
@@ -240,7 +247,7 @@ export default function Home() {
                   key={name}
                   href={'/san-pham?danh-muc=' + encodeURIComponent(name)}
                   data-aos="reveal"
-                  data-aos-delay={index * 50}
+                  data-aos-delay={index * 100}
                 >
                   <div className="category-art">
                     <span className="category-number">{no}</span>
@@ -353,7 +360,7 @@ export default function Home() {
                   className="commitment-card"
                   key={title}
                   data-aos="reveal"
-                  data-aos-delay={i * 50}
+                  data-aos-delay={i * 100}
                 >
                   <div className="commitment-icon">
                     <Icon size={27} />
@@ -384,7 +391,7 @@ export default function Home() {
                   href={'/du-an?du-an=' + p.id}
                   key={p.id}
                   data-aos="reveal"
-                  data-aos-delay={index * 50}
+                  data-aos-delay={index * 100}
                 >
                   <div className="project-image">
                     <img src={p.image} alt={p.name} loading="lazy" />
@@ -410,6 +417,8 @@ export default function Home() {
           </p>
         </div>
       </section>
+      <SupplyProcess />
+      <BuyingQuestions />
       <CallToAction />
     </>
   );

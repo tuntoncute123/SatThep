@@ -64,3 +64,39 @@ trong thư mục tạm, không sửa dữ liệu thật. Không chạy một ser
 Định dạng file đã chỉnh sửa bằng Prettier theo `.prettierrc.json`.
 
 Tham khảo: [Next.js Route Handlers](https://nextjs.org/docs/app/api-reference/file-conventions/route).
+
+## Hiệu ứng và nội dung công khai
+
+GSAP và AOS đã nằm trong dependencies: không cần thêm script CDN.
+`src/animations/usePublicMotion.js` dùng GSAP cho phần mở đầu và AOS cho nội dung
+xuất hiện khi cuộn; `AnimatedNumber.jsx` dùng ScrollTrigger cho các bộ đếm.
+Hiệu ứng tôn trọng `prefers-reduced-motion`, dọn GSAP khi chuyển trang và cập nhật
+vị trí sau khi ảnh/font tải xong hoặc chiều cao nội dung thay đổi. Nội dung vẫn
+hiển thị khi JavaScript chưa chạy; bàn phím có thể truy cập các vùng đang chờ hiệu ứng.
+
+`src/components/SupplyGuide.jsx` chứa quy trình yêu cầu báo giá và câu hỏi thường gặp,
+sử dụng ở trang chủ và liên hệ. Ảnh mới `public/images/steel-warehouse.webp` được
+lưu tại dự án, tối ưu WebP và tải lazy. Đây là ảnh minh họa AI, không phải ảnh kho
+thực tế của doanh nghiệp. Nguồn và prompt nằm trong `public/images/CREDITS.md`.
+Nội dung, dự án, đối tác và số liệu mẫu cần được doanh nghiệp xác nhận trước khi sử dụng chính thức.
+
+## Hydration và request từ extension
+
+Các thuộc tính `data-testim-main-word-scripts-loaded` và `class="vsc-initialized"`
+trong log được thêm vào DOM ngoài mã ứng dụng. Layout sử dụng
+`suppressHydrationWarning` **chỉ trên body** để chấp nhận trường hợp extension
+thêm thuộc tính tại đó; cơ chế này không sửa hoặc bỏ qua sai khác trong cây
+component bên trong. Đối chiếu với [hướng dẫn React](https://react.dev/reference/react-dom/components/common#suppressing-unavoidable-hydration-mismatch-errors).
+
+Dữ liệu settings/products đã có trong HTML từ server, nên Providers không tải lại
+hai API ngay khi mount. Hàm `refresh()` vẫn dùng được sau thao tác cập nhật dữ liệu.
+
+`POST /api/ext/auth-token` và `POST /api/ext/activate` không phải API của dự án và
+không có lời gọi tương ứng trong mã nguồn. Chúng tiếp tục trả 404 đúng chức năng;
+không cấp token hoặc giả lập kích hoạt cho phần mềm ngoài ứng dụng. Nếu vẫn thấy
+request này, mở DevTools → Network → Initiator để xác định nguồn, rồi thử hồ sơ
+trình duyệt sạch hoặc tắt extension liên quan trên localhost. Các request ngoài
+ứng dụng sẽ chỉ ngừng khi nguồn gửi được tắt.
+
+Các test `tests/public-content.spec.js` mô phỏng thuộc tính extension trước
+hydration, kiểm tra không tải trùng API, ảnh, FAQ, bàn phím và nội dung khi tắt JavaScript.

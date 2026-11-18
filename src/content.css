@@ -1,0 +1,215 @@
+.supply-section {
+  background: var(--cream);
+}
+
+.supply-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: clamp(2rem, 4vw, 6rem);
+}
+
+.supply-photo {
+  margin: 0;
+  min-width: 0;
+}
+
+.supply-photo img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: 42% center;
+  border-radius: 4px;
+}
+
+.supply-photo figcaption {
+  margin-top: 0.75rem;
+  color: #5c6266;
+  font-size: var(--caption);
+}
+
+.supply-copy h2 {
+  margin-top: 0.75rem;
+  font-size: var(--heading);
+  text-wrap: balance;
+}
+
+.supply-intro {
+  margin-top: 1rem;
+  font-size: var(--body);
+  color: #565d61;
+}
+
+.supply-steps {
+  display: grid;
+  gap: 1.5rem;
+  margin: 2rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.supply-steps li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+}
+
+.supply-step-icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: var(--orange-light);
+  color: var(--orange-dark);
+  border-radius: 4px;
+}
+
+.supply-steps h3 {
+  margin-bottom: 0.5rem;
+  font-size: var(--card);
+}
+
+.supply-steps h3 span {
+  color: var(--orange-dark);
+}
+
+.supply-steps p {
+  color: #565d61;
+  font-size: var(--body);
+}
+
+.buying-grid {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  align-items: start;
+  gap: clamp(2rem, 5vw, 7rem);
+}
+
+.buying-grid .section-heading {
+  display: block;
+  margin: 0;
+}
+
+.buying-questions {
+  min-width: 0;
+  border-top: 1px solid var(--line);
+}
+
+.buying-question {
+  border-bottom: 1px solid var(--line);
+}
+
+.buying-question summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.35rem 0;
+  font-size: var(--card);
+  font-weight: 600;
+  line-height: 1.5;
+  list-style: none;
+  cursor: pointer;
+}
+
+.buying-question summary::-webkit-details-marker {
+  display: none;
+}
+
+.buying-question summary svg {
+  flex-shrink: 0;
+  color: var(--orange-dark);
+  transition: transform 200ms ease;
+}
+
+.buying-question[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.buying-question summary:focus-visible {
+  outline: 2px solid var(--orange-dark);
+  outline-offset: 4px;
+}
+
+.buying-question p {
+  max-width: 65ch;
+  padding: 0 1.75rem 1.5rem 0;
+  font-size: var(--body);
+  color: #565d61;
+  overflow-wrap: anywhere;
+}
+
+/* Keep the public reading scale intact after older device-specific rules. */
+.public-site .hero-copy > p,
+.public-site .page-hero p,
+.public-site .about-copy > p,
+.public-site .category-body > p,
+.public-site .catalog-body > p,
+.public-site .commitment-card > p,
+.public-site .section-heading p,
+.public-site .contact-info > p,
+.public-site .about-page-grid p {
+  font-size: var(--body);
+}
+
+.public-site .button,
+.public-site .hero-secondary,
+.public-site .category-link,
+.public-site .catalog-card-footer button,
+.public-site .filter-tabs button {
+  font-size: var(--nav);
+}
+
+.public-site .category-body h3,
+.public-site .catalog-body h3,
+.public-site .commitment-card h3,
+.public-site .project-info h3 {
+  font-size: var(--card);
+}
+
+.public-site .hero-eyebrow,
+.public-site .hero-assurance,
+.public-site .category-tag,
+.public-site .category-number,
+.public-site .product-category,
+.public-site .product-brand,
+.public-site .catalog-card-footer > span,
+.public-site .project-image > span,
+.public-site .project-info > p,
+.public-site .image-caption,
+.public-site .footer-bottom {
+  font-size: var(--caption);
+}
+
+@media (max-width: 959px) {
+  .supply-grid,
+  .buying-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .supply-photo img {
+    aspect-ratio: 3 / 2;
+    max-height: 30rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .public-site .header-inner {
+    gap: 0.5rem;
+  }
+
+  .public-site .header-quote {
+    padding-inline: 0.75rem;
+  }
+
+  .public-site .header-quote svg {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buying-question summary svg {
+    transition: none;
+  }
+}

@@ -23,6 +23,7 @@ import { SectionHeading, Modal, Empty } from '../components/Common';
 import SteelArt from '../components/SteelArt';
 import QuoteForm from '../components/QuoteForm';
 import { CallToAction, projects, ProjectCard } from './Home';
+import { BuyingQuestions } from '../components/SupplyGuide';
 export function PageHero({ eyebrow, title, description }) {
   return (
     <section className="page-hero">
@@ -469,6 +470,7 @@ export function Contact() {
           </div>
         </div>
       </section>
+      <BuyingQuestions />
     </>
   );
 }

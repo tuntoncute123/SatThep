@@ -3,6 +3,7 @@ import { getPublicProducts, getSettings } from '@server/catalog';
 import '../styles.css';
 import 'aos/dist/aos.css';
 import '../animations/motion.css';
+import '../content.css';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -23,7 +24,9 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="vi">
-      <body>
+      {/* Extensions may inject attributes on body before React hydrates. Keep this
+          escape hatch scoped here so mismatches inside the app still surface. */}
+      <body suppressHydrationWarning>
         <Providers initialSettings={getSettings()} initialProducts={getPublicProducts()}>
           {children}
         </Providers>

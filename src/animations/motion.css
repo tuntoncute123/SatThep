@@ -1,14 +1,170 @@
-/* Only opt into movement when the visitor permits it. */
+.hero-media {
+  position: absolute;
+  inset: -8% 0;
+  z-index: -3;
+  overflow: hidden;
+}
+
+.hero-media .hero-image {
+  z-index: auto;
+}
+
+.hero-title-line {
+  display: block;
+  overflow: clip;
+  padding-block: 0.12em;
+  margin-block: -0.12em;
+}
+
+.hero-title-line > * {
+  display: block;
+}
+
+.hero-progress {
+  overflow: hidden;
+}
+
+.hero-progress i {
+  width: 100%;
+  transform-origin: left center;
+}
+
+/* Reveals use individual transforms so card hover never fights the entrance. */
 @media (prefers-reduced-motion: no-preference) {
   .public-site [data-aos='reveal'] {
     opacity: 0;
-    translate: 0 24px;
-    transition-property: opacity, translate, transform, box-shadow, border-color;
+    translate: 0 56px;
+    scale: 0.97;
+    transition-property: opacity, translate, scale, transform, box-shadow, border-color;
+  }
+
+  .public-site [data-aos='reveal'][data-aos] {
+    transition-property: opacity, translate, scale, transform, box-shadow, border-color;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .public-site .about-visual[data-aos='reveal'] {
+    translate: -48px 32px;
+  }
+
+  .public-site .about-copy[data-aos='reveal'] {
+    translate: 48px 32px;
   }
 
   .public-site [data-aos='reveal'].aos-animate {
     opacity: 1;
     translate: 0 0;
+    scale: 1;
+  }
+
+  .public-site .button,
+  .public-site .project-card,
+  .public-site .catalog-card {
+    transition:
+      transform 350ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 350ms ease,
+      background-color 250ms ease,
+      border-color 250ms ease;
+  }
+
+  .public-site .button > svg,
+  .public-site .text-link > svg,
+  .public-site .hero-secondary > svg,
+  .public-site .category-link > svg,
+  .public-site .project-image > i,
+  .public-site .commitment-icon > svg {
+    transition:
+      transform 450ms cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 250ms ease,
+      color 250ms ease;
+  }
+
+  .public-site .category-art .steel-art,
+  .public-site .project-image > img {
+    transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .public-site .public-nav > a::after {
+    content: '';
+    position: absolute;
+    bottom: 19px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--orange);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .public-site .public-nav > a.active::after,
+  .public-site .public-nav > a:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  .public-site .modal-backdrop {
+    animation: backdrop-enter 250ms ease-out both;
+  }
+
+  .public-site .modal {
+    animation: panel-enter 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .public-site .buying-question[open] > p {
+    animation: copy-enter 350ms ease-out both;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .public-site .category-card:hover,
+  .public-site .catalog-card:hover {
+    transform: perspective(1000px) translateY(-10px) rotateX(2deg);
+    box-shadow: 0 22px 44px -16px #29312838;
+    border-color: #e5a58b;
+  }
+
+  .public-site .project-card:hover {
+    transform: translateY(-8px);
+  }
+
+  .public-site .category-card:hover .steel-art {
+    transform: translateY(-6px) scale(1.1) rotate(-2deg);
+  }
+
+  .public-site .project-card:hover .project-image > img {
+    transform: scale(1.1);
+  }
+
+  .public-site .project-card:hover .project-image > i {
+    transform: rotate(45deg) scale(1.12);
+  }
+
+  .public-site .button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px -8px #ad481b55;
+  }
+
+  .public-site .button:active {
+    transform: translateY(0) scale(0.98);
+    transition-duration: 100ms;
+  }
+
+  .public-site .button:hover > svg,
+  .public-site .text-link:hover > svg,
+  .public-site .category-card:hover .category-link > svg {
+    transform: translate(4px, -4px);
+  }
+
+  .public-site .hero-secondary:hover > svg {
+    transform: translateX(6px);
+  }
+
+  .public-site .commitment-card:hover .commitment-icon > svg {
+    transform: translateY(-5px) rotate(-8deg) scale(1.12);
+  }
+
+  .public-site .public-nav > a:hover::after {
+    transform: scaleX(1);
   }
 }
 
@@ -18,6 +174,7 @@
 .public-site [data-aos]:focus-visible {
   opacity: 1;
   translate: none;
+  scale: none;
   transition: none;
 }
 
@@ -28,17 +185,23 @@
   font-variant-numeric: tabular-nums;
 }
 
-@media (max-width: 639px) and (prefers-reduced-motion: no-preference) {
-  .public-site [data-aos='reveal'] {
-    translate: 0 14px;
-    transition-duration: 450ms !important;
-    transition-delay: 0ms !important;
+@media (max-width: 959px) and (prefers-reduced-motion: no-preference) {
+  .public-site [data-aos='reveal'][data-aos] {
+    translate: 0 28px;
+    scale: 0.985;
+    transition-duration: 650ms !important;
+    transition-delay: 0ms;
   }
 
-  .public-site [data-aos='reveal'].aos-animate,
+  .public-site .public-nav.is-open {
+    animation: copy-enter 350ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .public-site [data-aos='reveal'][data-aos].aos-animate,
   .public-site [data-aos]:has(:focus-visible),
   .public-site [data-aos]:focus-visible {
     translate: none;
+    scale: none;
   }
 }
 
@@ -51,6 +214,7 @@
   .public-site [data-aos] {
     opacity: 1 !important;
     translate: none !important;
+    scale: none !important;
     transform: none !important;
     transition: none !important;
   }
@@ -60,6 +224,41 @@
   .public-site [data-aos] {
     opacity: 1 !important;
     translate: none !important;
+    scale: none !important;
     transform: none !important;
+  }
+}
+
+@keyframes backdrop-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(32px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes copy-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

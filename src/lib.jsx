@@ -74,8 +74,12 @@ export function Providers({ children, initialSettings = null, initialProducts = 
     }
   }, []);
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    // The root layout already provides a fresh server snapshot on page load.
+    // Fetch only for consumers that were mounted without that snapshot.
+    if (initialSettings === null) {
+      refresh();
+    }
+  }, [initialSettings, refresh]);
   const toast = useCallback((message, type = 'success') => {
     const id = crypto.randomUUID();
     setToasts((t) => {
