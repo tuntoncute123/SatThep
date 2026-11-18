@@ -13,8 +13,8 @@ export const GET = route(
 );
 
 export const POST = route(
-  ({ body }) => {
-    return NextResponse.json(saveRecord('customers', body), { status: 201 });
+  async ({ body }) => {
+    return NextResponse.json(await saveRecord('customers', body), { status: 201 });
   },
   { auth: true, body: true },
 );

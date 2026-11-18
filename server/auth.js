@@ -8,7 +8,7 @@ export function cookieOptions() {
   return {
     httpOnly: true,
     sameSite: 'strict',
-    secure: process.env.COOKIE_SECURE === '1',
+    secure: process.env.VERCEL === '1' || process.env.COOKIE_SECURE === '1',
     maxAge: sessionMaxAge,
     path: '/',
   };
@@ -22,19 +22,21 @@ export function adminUser() {
     email: process.env.ADMIN_EMAIL || 'admin@thepviet.vn',
   };
 }
-export function requireAuth(request) {
+export async function requireAuth(request) {
   const token = request.cookies.get(sessionCookie)?.value;
-  const session = token
-    ? getDb()
-        .prepare('SELECT token FROM sessions WHERE token=? AND expires>?')
-        .get(hashToken(token), Date.now())
-    : null;
+  if (!token) {
+    throw new HttpError(401, 'Vui lòng đăng nhập để tiếp tục.');
+  }
+  const db = await getDb();
+  const session = await db
+    .prepare('SELECT token FROM sessions WHERE token=? AND expires>?')
+    .get(hashToken(token), Date.now());
   if (!session) {
     throw new HttpError(401, 'Vui lòng đăng nhập để tiếp tục.');
   }
   return adminUser();
 }
-export function login(body) {
+export async function login(body) {
   const password =
     process.env.ADMIN_PASSWORD || (process.env.NODE_ENV === 'production' ? '' : 'ThepViet@2026');
   if (password.length < 12) {
@@ -48,18 +50,18 @@ export function login(body) {
   if (body?.email !== adminUser().email || !valid) {
     throw new HttpError(401, 'Email hoặc mật khẩu không chính xác.');
   }
-  const db = getDb();
+  const db = await getDb();
   const token = randomBytes(32).toString('hex');
-  db.prepare('DELETE FROM sessions WHERE expires<?').run(Date.now());
-  db.prepare('INSERT INTO sessions VALUES (?,?)').run(
-    hashToken(token),
-    Date.now() + sessionMaxAge * 1000,
-  );
+  await db.prepare('DELETE FROM sessions WHERE expires<?').run(Date.now());
+  await db
+    .prepare('INSERT INTO sessions VALUES (?,?)')
+    .run(hashToken(token), Date.now() + sessionMaxAge * 1000);
   return token;
 }
-export function logout(request) {
+export async function logout(request) {
   const token = request.cookies.get(sessionCookie)?.value;
   if (token) {
-    getDb().prepare('DELETE FROM sessions WHERE token=?').run(hashToken(token));
+    const db = await getDb();
+    await db.prepare('DELETE FROM sessions WHERE token=?').run(hashToken(token));
   }
 }

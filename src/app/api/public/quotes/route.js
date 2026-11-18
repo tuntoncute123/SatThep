@@ -6,8 +6,8 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export const POST = route(
-  ({ body }) => {
-    return NextResponse.json(createQuote(body), { status: 201 });
+  async ({ body }) => {
+    return NextResponse.json(await createQuote(body), { status: 201 });
   },
   {
     body: true,

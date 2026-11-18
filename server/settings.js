@@ -15,8 +15,9 @@ const settingsSchema = z.object({
   partners: z.string().min(1).max(15),
   capacity: z.string().min(1).max(15),
 });
-export function updateSettings(body) {
+export async function updateSettings(body) {
   const data = settingsSchema.parse(body);
-  getDb().prepare('UPDATE settings SET data=? WHERE id=1').run(JSON.stringify(data));
+  const db = await getDb();
+  await db.prepare('UPDATE settings SET data=? WHERE id=1').run(JSON.stringify(data));
   return data;
 }

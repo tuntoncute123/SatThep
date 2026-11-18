@@ -20,6 +20,9 @@ export default defineConfig({
     command: 'npm run start -- --port 5175',
     url: 'http://127.0.0.1:5175/api/public/settings',
     env: {
+      VERCEL: '',
+      TURSO_DATABASE_URL: '',
+      TURSO_AUTH_TOKEN: '',
       DATA_DIR: testData,
       ADMIN_EMAIL: 'admin@thepviet.vn',
       ADMIN_PASSWORD: 'ThepViet@2026',

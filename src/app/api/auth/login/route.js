@@ -6,8 +6,8 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export const POST = route(
-  ({ body }) => {
-    const token = login(body);
+  async ({ body }) => {
+    const token = await login(body);
     const response = NextResponse.json(adminUser());
     response.cookies.set(sessionCookie, token, cookieOptions());
     return response;

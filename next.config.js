@@ -2,7 +2,7 @@ const nextConfig = {
   agentRules: false,
   allowedDevOrigins: ['localhost', '127.0.0.1'],
   poweredByHeader: false,
-  serverExternalPackages: ['node:sqlite'],
+  serverExternalPackages: ['@libsql/client'],
   async headers() {
     return [
       {

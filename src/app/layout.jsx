@@ -21,13 +21,14 @@ export const viewport = {
   themeColor: '#ed5b27',
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const [settings, products] = await Promise.all([getSettings(), getPublicProducts()]);
   return (
     <html lang="vi">
       {/* Extensions may inject attributes on body before React hydrates. Keep this
           escape hatch scoped here so mismatches inside the app still surface. */}
       <body suppressHydrationWarning>
-        <Providers initialSettings={getSettings()} initialProducts={getPublicProducts()}>
+        <Providers initialSettings={settings} initialProducts={products}>
           {children}
         </Providers>
       </body>

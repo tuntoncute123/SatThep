@@ -12,38 +12,38 @@ function resourceSchema(table) {
   }
   return resources[table];
 }
-export function getSettings() {
-  return JSON.parse(getDb().prepare('SELECT data FROM settings WHERE id=1').get().data);
+export async function getSettings() {
+  const db = await getDb();
+  const row = await db.prepare('SELECT data FROM settings WHERE id=1').get();
+  return JSON.parse(row.data);
 }
-export function getPublicProducts() {
-  return getDb()
+export async function getPublicProducts() {
+  const db = await getDb();
+  return db
     .prepare(
       `
     SELECT id,name,sku,category,brand,unit,spec,description
     FROM products WHERE active=1 ORDER BY id
   `,
     )
-    .all()
-    .map((product) => {
-      // node:sqlite rows have a null prototype; React Server Components need plain objects.
-      return { ...product };
-    });
+    .all();
 }
-export function listRecords(table) {
+export async function listRecords(table) {
   resourceSchema(table);
-  return getDb().prepare(`SELECT * FROM ${table} ORDER BY id DESC`).all();
+  const db = await getDb();
+  return db.prepare(`SELECT * FROM ${table} ORDER BY id DESC`).all();
 }
-export function saveRecord(table, body, id) {
+export async function saveRecord(table, body, id) {
   const data = resourceSchema(table).parse(body);
   const keys = Object.keys(data);
-  const db = getDb();
+  const db = await getDb();
   if (id !== undefined) {
     const assignments = keys
       .map((key) => {
         return `${key}=?`;
       })
       .join(',');
-    const result = db
+    const result = await db
       .prepare(`UPDATE ${table} SET ${assignments} WHERE id=?`)
       .run(...Object.values(data), id);
     if (!result.changes) {
@@ -59,7 +59,7 @@ export function saveRecord(table, body, id) {
       return '?';
     })
     .join(',');
-  const result = db
+  const result = await db
     .prepare(
       `
     INSERT INTO ${table} (${keys.join(',')}) VALUES (${placeholders})
@@ -71,30 +71,30 @@ export function saveRecord(table, body, id) {
     id: Number(result.lastInsertRowid),
   };
 }
-export function deleteRecord(table, id) {
+export async function deleteRecord(table, id) {
   resourceSchema(table);
-  const db = getDb();
-  const inOrder =
-    table === 'products' &&
-    db
-      .prepare('SELECT items FROM orders')
-      .all()
-      .some((order) => {
+  const database = await getDb();
+  return database.transaction(async (db) => {
+    const orders = table === 'products' ? await db.prepare('SELECT items FROM orders').all() : [];
+    const inOrder =
+      table === 'products' &&
+      orders.some((order) => {
         return JSON.parse(order.items).some((item) => {
           return item.productId === id;
         });
       });
-  if (inOrder) {
-    throw new HttpError(
-      409,
-      'Sản phẩm có trong đơn hàng. Hãy chuyển sang trạng thái ẩn để giữ lịch sử.',
-    );
-  }
-  const result = db.prepare(`DELETE FROM ${table} WHERE id=?`).run(id);
-  if (!result.changes) {
-    throw new HttpError(404, 'Không tìm thấy bản ghi.');
-  }
-  return {
-    ok: true,
-  };
+    if (inOrder) {
+      throw new HttpError(
+        409,
+        'Sản phẩm có trong đơn hàng. Hãy chuyển sang trạng thái ẩn để giữ lịch sử.',
+      );
+    }
+    const result = await db.prepare(`DELETE FROM ${table} WHERE id=?`).run(id);
+    if (!result.changes) {
+      throw new HttpError(404, 'Không tìm thấy bản ghi.');
+    }
+    return {
+      ok: true,
+    };
+  });
 }

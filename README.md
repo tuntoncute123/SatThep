@@ -1,11 +1,12 @@
 # Thép Việt
 
 Ứng dụng Next.js App Router dùng chung cho website, trang quản trị và API.
-Dữ liệu được lưu bằng SQLite trên máy chủ; không cần chạy Express hoặc Vite riêng.
+Dữ liệu dùng SQLite tại máy hoặc Turso/libSQL khi chạy trên Vercel;
+không cần chạy Express hoặc Vite riêng.
 
 ## Chạy tại máy
 
-Yêu cầu Node.js **22.13 trở lên** (khuyến nghị Node.js 24 LTS) để dùng `node:sqlite`.
+Yêu cầu Node.js **24.x**, thống nhất với phiên bản cấu hình trên Vercel.
 
 ```bash
 npm install
@@ -33,10 +34,46 @@ Không xóa thư mục này khi cập nhật ứng dụng. Dữ liệu mẫu ch�
 bản ghi cấu hình doanh nghiệp. Sao lưu bằng SQLite backup hoặc dừng ứng dụng trước
 khi sao chép database cùng các file WAL/SHM.
 
-Ứng dụng cần Node.js server và ổ đĩa ghi được, lưu bền vững; không dùng static export
-hay filesystem tạm của serverless để lưu database. Bật `COOKIE_SECURE=1` khi phục vụ
+Khi dùng SQLite tại máy, ứng dụng cần Node.js server và ổ đĩa ghi được, lưu bền vững;
+không dùng static export hay filesystem tạm của serverless để lưu database.
+Bật `COOKIE_SECURE=1` khi phục vụ
 qua HTTPS. Chỉ bật `TRUST_PROXY=1` nếu reverse proxy tin cậy ghi đè header
 `X-Forwarded-For`; mặc định giới hạn đăng nhập/gửi báo giá dùng chung cho ứng dụng.
+
+## Deploy trên Vercel
+
+Vercel Functions không lưu bền vững file SQLite trong thư mục dự án hoặc `/tmp`.
+Ứng dụng kết nối Turso/libSQL qua mạng khi có `TURSO_DATABASE_URL` và
+`TURSO_AUTH_TOKEN`. Database này lưu chung dữ liệu, phiên đăng nhập và giới hạn
+request giữa các function. Tham khảo [filesystem của Vercel Functions](https://vercel.com/docs/functions/runtimes#file-system-support).
+
+1. Tạo database tại [Turso](https://docs.turso.tech/quickstart), lấy database URL
+   và auth token có quyền ghi. Nếu cần giữ dữ liệu SQLite hiện có, import bản sao
+   database vào Turso trước khi chạy ứng dụng; không commit thư mục `data` lên Git.
+2. Trong Vercel → Project → Settings → Environment Variables, thêm:
+
+   | Biến                 | Giá trị                                       |
+   | -------------------- | --------------------------------------------- |
+   | `TURSO_DATABASE_URL` | `libsql://<database>-<organization>.turso.io` |
+   | `TURSO_AUTH_TOKEN`   | Auth token của database                       |
+   | `ADMIN_EMAIL`        | Email đăng nhập quản trị                      |
+   | `ADMIN_PASSWORD`     | Mật khẩu riêng, tối thiểu 12 ký tự            |
+
+   Chọn đúng môi trường Production/Preview; nên dùng database riêng cho Preview.
+   Không dùng tiền tố `NEXT_PUBLIC_` cho các biến này.
+   Cookie đăng nhập tự bật `Secure` khi chạy trên Vercel.
+
+3. Chọn Framework Preset **Next.js**, Node.js **24.x**, Root Directory là thư mục
+   chứa `package.json`, Install Command `npm ci`, Build Command `npm run build`.
+   Giữ Output Directory mặc định của Next.js; xóa override `dist`/`out` nếu đang có.
+4. Deploy lại sau khi lưu biến môi trường. Kiểm tra `/`, `/san-pham`, đăng nhập
+   `/admin`, tạo báo giá và cập nhật đơn hàng. Build không cần kết nối database;
+   kết nối và khởi tạo schema xảy ra ở request đầu tiên.
+
+Database trống được tạo schema và dữ liệu minh họa một lần, trong transaction.
+Database có cấu hình doanh nghiệp được giữ nguyên. Khi thiếu cấu hình Turso trên
+Vercel, runtime báo lỗi cấu hình trong log thay vì ghi dữ liệu vào ổ đĩa tạm.
+`DATA_DIR` chỉ áp dụng cho SQLite tại máy, không cần đặt trên Vercel.
 
 ## Cấu trúc
 

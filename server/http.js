@@ -55,17 +55,17 @@ async function readJson(request) {
     throw new HttpError(400, 'Dữ liệu gửi lên không hợp lệ.');
   }
 }
-function checkRateLimit(request, { scope, windowMs, limit, message }) {
+async function checkRateLimit(request, { scope, windowMs, limit, message }) {
   // Enable only behind a trusted proxy that overwrites X-Forwarded-For.
   const client =
     process.env.TRUST_PROXY === '1'
       ? request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'shared'
       : 'shared';
   const key = createHash('sha256').update(`${scope}:${client}`).digest('hex');
-  const db = getDb();
+  const db = await getDb();
   const now = Date.now();
-  db.prepare('DELETE FROM rate_limits WHERE expires<=?').run(now);
-  const record = db
+  await db.prepare('DELETE FROM rate_limits WHERE expires<=?').run(now);
+  const record = await db
     .prepare(
       `
     INSERT INTO rate_limits (key, count, expires) VALUES (?, 1, ?)
@@ -86,10 +86,10 @@ export function route(handler, { auth = false, body = false, rateLimit } = {}) {
     try {
       checkOrigin(request);
       if (auth) {
-        requireAuth(request);
+        await requireAuth(request);
       }
       if (rateLimit) {
-        checkRateLimit(request, rateLimit);
+        await checkRateLimit(request, rateLimit);
       }
       const params = (await context?.params) || {};
       const data = body ? await readJson(request) : undefined;

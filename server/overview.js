@@ -1,9 +1,15 @@
 import 'server-only';
 import { getDb } from './db';
 import { listOrders } from './orders';
-export function getOverview() {
-  const db = getDb();
-  const orders = listOrders();
+export async function getOverview() {
+  const db = await getDb();
+  const [orders, customers, products, quotes, lowStock] = await Promise.all([
+    listOrders(),
+    db.prepare('SELECT count(*) AS n FROM customers').get(),
+    db.prepare('SELECT count(*) AS n FROM products').get(),
+    db.prepare("SELECT count(*) AS n FROM quotes WHERE status='new'").get(),
+    db.prepare('SELECT * FROM products WHERE stock<20000 ORDER BY stock').all(),
+  ]);
   const date = new Date();
   const months = [];
   for (let i = 5; i >= 0; i--) {
@@ -24,11 +30,11 @@ export function getOverview() {
       return sum + (order.status === 'completed' ? order.total : 0);
     }, 0),
     orderCount: orders.length,
-    customerCount: db.prepare('SELECT count(*) AS n FROM customers').get().n,
-    productCount: db.prepare('SELECT count(*) AS n FROM products').get().n,
-    quoteCount: db.prepare("SELECT count(*) AS n FROM quotes WHERE status='new'").get().n,
+    customerCount: customers.n,
+    productCount: products.n,
+    quoteCount: quotes.n,
     months,
     recentOrders: orders.slice(0, 5),
-    lowStock: db.prepare('SELECT * FROM products WHERE stock<20000 ORDER BY stock').all(),
+    lowStock,
   };
 }
