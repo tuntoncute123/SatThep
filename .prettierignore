@@ -1,0 +1,10 @@
+node_modules/
+dist/
+data/
+public/fonts/
+public/images/
+package-lock.json
+test-results/
+playwright-report/
+
+.next/

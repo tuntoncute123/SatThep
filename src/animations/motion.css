@@ -1,0 +1,65 @@
+/* Only opt into movement when the visitor permits it. */
+@media (prefers-reduced-motion: no-preference) {
+  .public-site [data-aos='reveal'] {
+    opacity: 0;
+    translate: 0 24px;
+    transition-property: opacity, translate, transform, box-shadow, border-color;
+  }
+
+  .public-site [data-aos='reveal'].aos-animate {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* Content is readable before the animation runtime is ready and during keyboard navigation. */
+.public-site:not([data-motion-ready='true']) [data-aos],
+.public-site [data-aos]:has(:focus-visible),
+.public-site [data-aos]:focus-visible {
+  opacity: 1;
+  translate: none;
+  transition: none;
+}
+
+.stat-item strong .animated-number {
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 639px) and (prefers-reduced-motion: no-preference) {
+  .public-site [data-aos='reveal'] {
+    translate: 0 14px;
+    transition-duration: 450ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .public-site [data-aos='reveal'].aos-animate,
+  .public-site [data-aos]:has(:focus-visible),
+  .public-site [data-aos]:focus-visible {
+    translate: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .public-site,
+  .public-site * {
+    scroll-behavior: auto !important;
+  }
+
+  .public-site [data-aos] {
+    opacity: 1 !important;
+    translate: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+@media print {
+  .public-site [data-aos] {
+    opacity: 1 !important;
+    translate: none !important;
+    transform: none !important;
+  }
+}
